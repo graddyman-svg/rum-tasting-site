@@ -1,1 +1,158 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ラム酒テイスティング</title><link rel="stylesheet" href="css/style.css"></head><body><header><a href="index.html">← 銘柄一覧へ</a></header><main><p id="status" aria-live="polite">読み込み中…</p><section class="panel"><h1 id="rum-name">銘柄情報</h1><div class="detail-layout"><div id="rum-image"></div><div id="rum-detail"></div></div></section><section class="panel"><h2>みんなの評価</h2><p id="stats">読み込み中…</p><div id="reviews"></div></section><section class="panel"><h2>テイスティングを投稿</h2><p class="hint">ニックネームで投稿できます。コメントは承認後に公開します。性別・年代・好きなお酒は統計用で、一般には公開しません。</p><form id="review-form"><label for="nickname">ニックネーム（必須）</label><input id="nickname" maxlength="40" required autocomplete="nickname"><label for="dryness">甘口（1）〜辛口・ドライ（5）</label><select id="dryness" required><option value="1">1 甘口</option><option value="2">2</option><option value="3" selected>3 中間</option><option value="4">4</option><option value="5">5 辛口・ドライ</option></select><label for="body">軽い（1）〜重厚（5）</label><select id="body" required><option value="1">1 軽い</option><option value="2">2</option><option value="3" selected>3 中間</option><option value="4">4</option><option value="5">5 重厚</option></select><label for="oak_note">樽香</label><textarea id="oak_note" maxlength="1000" placeholder="例：バニラ、トースト香"></textarea><label for="fruit_note">果実感</label><textarea id="fruit_note" maxlength="1000" placeholder="例：バナナ、柑橘"></textarea><label for="spice_note">スパイス感</label><textarea id="spice_note" maxlength="1000" placeholder="例：クローブ、シナモン"></textarea><label for="preference_note">好み・感想</label><textarea id="preference_note" maxlength="1500" placeholder="例：ストレートで楽しみたい"></textarea><h3>投稿者情報（統計用・任意）</h3><label for="gender">性別</label><select id="gender"><option value="">回答しない</option><option value="male">男性</option><option value="female">女性</option><option value="other">その他</option></select><label for="age_group">年代</label><select id="age_group"><option value="">回答しない</option><option value="20">20代</option><option value="30">30代</option><option value="40">40代</option><option value="50">50代</option><option value="60">60代以上</option></select><label>普段好きなお酒（複数選択可）</label><div class="checklist"><label><input type="checkbox" name="favorite_drinks" value="rum"> ラム</label><label><input type="checkbox" name="favorite_drinks" value="whisky"> ウイスキー</label><label><input type="checkbox" name="favorite_drinks" value="brandy"> ブランデー</label><label><input type="checkbox" name="favorite_drinks" value="gin"> ジン</label><label><input type="checkbox" name="favorite_drinks" value="vodka"> ウォッカ</label><label><input type="checkbox" name="favorite_drinks" value="tequila"> テキーラ</label><label><input type="checkbox" name="favorite_drinks" value="wine"> ワイン</label><label><input type="checkbox" name="favorite_drinks" value="sake"> 日本酒</label><label><input type="checkbox" name="favorite_drinks" value="beer"> ビール</label><label><input type="checkbox" name="favorite_drinks" value="shochu"> 焼酎</label><label><input type="checkbox" name="favorite_drinks" value="other"> その他</label></div><label><input type="checkbox" id="remember" checked> この端末にニックネーム・属性を保存し、次回自動入力する</label><p class="hint">保存先はブラウザのローカルストレージです。共有端末ではオフにしてください。</p><button type="button" id="forget-profile" class="secondary">端末の保存情報を削除</button> <button type="submit" id="send">投稿する</button><p id="form-status" role="status" aria-live="polite"></p></form></section></main><script src="js/config.js"></script><script src="js/api.js"></script><script src="js/rum.js"></script></body></html>
+
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ラム酒テイスティング</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* 投稿停止中はフォームを確実に非表示にする */
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="index.html">← 銘柄一覧へ</a>
+  </header>
+
+  <main>
+    <p id="status" aria-live="polite">読み込み中…</p>
+
+    <!-- 銘柄情報 -->
+    <section class="panel">
+      <h1 id="rum-name">銘柄情報</h1>
+      <div class="detail-layout">
+        <div id="rum-image"></div>
+        <div id="rum-detail"></div>
+      </div>
+    </section>
+
+    <!-- 承認済み口コミ -->
+    <section class="panel">
+      <h2>みんなの評価</h2>
+      <p id="stats">読み込み中…</p>
+      <div id="reviews"></div>
+    </section>
+
+    <!-- 投稿停止中のお知らせ -->
+    <section class="panel" id="submission-notice">
+      <h2>口コミ投稿は現在準備中です</h2>
+      <p>
+        ラム酒の銘柄情報と公開済み口コミはご覧いただけます。
+        口コミ投稿機能は、安全性の確認が完了してから公開する予定です。
+      </p>
+    </section>
+
+    <!-- 投稿フォーム：一時的に非表示 -->
+    <section class="panel" id="review-submission" hidden>
+      <h2>テイスティングを投稿</h2>
+
+      <p class="hint">
+        ニックネームで投稿できます。コメントは承認後に公開します。
+        性別・年代・好きなお酒は統計用で、一般には公開しません。
+      </p>
+
+      <form id="review-form">
+        <label for="nickname">ニックネーム（必須）</label>
+        <input id="nickname" maxlength="40" required autocomplete="nickname">
+
+        <label for="dryness">甘口（1）〜辛口・ドライ（5）</label>
+        <select id="dryness" required>
+          <option value="1">1 甘口</option>
+          <option value="2">2</option>
+          <option value="3" selected>3 中間</option>
+          <option value="4">4</option>
+          <option value="5">5 辛口・ドライ</option>
+        </select>
+
+        <label for="body">軽い（1）〜重厚（5）</label>
+        <select id="body" required>
+          <option value="1">1 軽い</option>
+          <option value="2">2</option>
+          <option value="3" selected>3 中間</option>
+          <option value="4">4</option>
+          <option value="5">5 重厚</option>
+        </select>
+
+        <label for="oak_note">樽香</label>
+        <textarea id="oak_note" maxlength="1000"
+          placeholder="例：バニラ、トースト香"></textarea>
+
+        <label for="fruit_note">果実感</label>
+        <textarea id="fruit_note" maxlength="1000"
+          placeholder="例：バナナ、柑橘"></textarea>
+
+        <label for="spice_note">スパイス感</label>
+        <textarea id="spice_note" maxlength="1000"
+          placeholder="例：クローブ、シナモン"></textarea>
+
+        <label for="preference_note">好み・感想</label>
+        <textarea id="preference_note" maxlength="1500"
+          placeholder="例：ストレートで楽しみたい"></textarea>
+
+        <h3>投稿者情報（統計用・任意）</h3>
+
+        <label for="gender">性別</label>
+        <select id="gender">
+          <option value="">回答しない</option>
+          <option value="male">男性</option>
+          <option value="female">女性</option>
+          <option value="other">その他</option>
+        </select>
+
+        <label for="age_group">年代</label>
+        <select id="age_group">
+          <option value="">回答しない</option>
+          <option value="20">20代</option>
+          <option value="30">30代</option>
+          <option value="40">40代</option>
+          <option value="50">50代</option>
+          <option value="60">60代以上</option>
+        </select>
+
+        <label>普段好きなお酒（複数選択可）</label>
+        <div class="checklist">
+          <label><input type="checkbox" name="favorite_drinks" value="rum"> ラム</label>
+          <label><input type="checkbox" name="favorite_drinks" value="whisky"> ウイスキー</label>
+          <label><input type="checkbox" name="favorite_drinks" value="brandy"> ブランデー</label>
+          <label><input type="checkbox" name="favorite_drinks" value="gin"> ジン</label>
+          <label><input type="checkbox" name="favorite_drinks" value="vodka"> ウォッカ</label>
+          <label><input type="checkbox" name="favorite_drinks" value="tequila"> テキーラ</label>
+          <label><input type="checkbox" name="favorite_drinks" value="wine"> ワイン</label>
+          <label><input type="checkbox" name="favorite_drinks" value="sake"> 日本酒</label>
+          <label><input type="checkbox" name="favorite_drinks" value="beer"> ビール</label>
+          <label><input type="checkbox" name="favorite_drinks" value="shochu"> 焼酎</label>
+          <label><input type="checkbox" name="favorite_drinks" value="other"> その他</label>
+        </div>
+
+        <label>
+          <input type="checkbox" id="remember" checked>
+          この端末にニックネーム・属性を保存し、次回自動入力する
+        </label>
+
+        <p class="hint">
+          保存先はブラウザのローカルストレージです。
+          共有端末ではオフにしてください。
+        </p>
+
+        <button type="button" id="forget-profile" class="secondary">
+          端末の保存情報を削除
+        </button>
+
+        <button type="submit" id="send">投稿する</button>
+
+        <p id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/rum.js"></script>
+</body>
+</html>
