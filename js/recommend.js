@@ -199,15 +199,52 @@ function calculateScore(
 // 7. おすすめ銘柄を選択
 // --------------------------------------------------
 
+// ラム酒タイプと原料・製法による絞り込み
+function matchesFilters(rum, rumType, productionTypes) {
+
+  // 未判定（null）はタイプ指定時には対象外
+  if (rumType === 'white' && rum.is_white !== true) {
+    return false;
+  }
+
+  if (rumType === 'exclude_white' && rum.is_white !== false) {
+    return false;
+  }
+
+  // 原料・製法は複数選択のうち1つ以上に一致
+  if (productionTypes.length > 0) {
+    const types = Array.isArray(rum.production_types)
+      ? rum.production_types
+      : [];
+
+    if (!productionTypes.some((type) => types.includes(type))) {
+      return false;
+    }
+  }
+
+  return true;
+
+}
+
+
 function recommendRums(
   likedTags,
   dislikedTags,
-  count
+  count,
+  rumType,
+  productionTypes
 ) {
 
   return allRums
 
-    // 全銘柄のスコアを計算
+    // ラム酒タイプと原料・製法で絞り込み
+    .filter((rum) => matchesFilters(
+      rum,
+      rumType,
+      productionTypes
+    ))
+
+    // 絞り込み後の銘柄のスコアを計算
     .map((rum) => calculateScore(
       rum,
       likedTags,
@@ -412,7 +449,7 @@ function displayResults(results, requestedCount) {
 
     status.textContent =
       '条件に合う銘柄が見つかりませんでした。' +
-      '香りの選択条件を変更してください。';
+      'ラム酒タイプ、原料・製法、香りの選択条件を変更してください。';
 
     return;
 
@@ -458,6 +495,15 @@ $('recommend-form').addEventListener(
     const dislikedTags =
       getSelectedTags('disliked');
 
+    // ラム酒タイプ（単一選択）
+    const rumType = document.querySelector(
+      'input[name="rum_type"]:checked'
+    )?.value || 'all';
+
+    // 原料・製法（複数選択）
+    const productionTypes =
+      getSelectedTags('production_type');
+
     const selectedCount = document.querySelector(
       'input[name="count"]:checked'
     );
@@ -478,7 +524,9 @@ $('recommend-form').addEventListener(
     const results = recommendRums(
       likedTags,
       dislikedTags,
-      count
+      count,
+      rumType,
+      productionTypes
     );
 
     displayResults(results, count);
