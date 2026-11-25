@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
 
   <style>
-    /* 投稿停止中はフォームを確実に非表示にする */
+    /* hidden属性が設定された要素を確実に非表示にする */
     [hidden] {
       display: none !important;
     }
@@ -48,19 +48,23 @@
       </p>
     </section>
 
-    <!-- 投稿フォーム：一時的に非表示 -->
+    <!-- 口コミ投稿フォーム -->
     <section class="panel" id="review-submission">
       <h2>テイスティングを投稿</h2>
 
       <p class="hint">
-        ニックネームで投稿できます。コメントは承認後に公開します。
+        ニックネームで投稿できます。
+        投稿された評価・コメントは、管理者の承認後に公開されます。
         性別・年代・好きなお酒は統計用で、一般には公開しません。
       </p>
 
       <form id="review-form">
+
+        <!-- ニックネーム -->
         <label for="nickname">ニックネーム（必須）</label>
         <input id="nickname" maxlength="40" required autocomplete="nickname">
 
+        <!-- 甘辛の評価 -->
         <label for="dryness">甘口（1）〜辛口・ドライ（5）</label>
         <select id="dryness" required>
           <option value="1">1 甘口</option>
@@ -70,6 +74,7 @@
           <option value="5">5 辛口・ドライ</option>
         </select>
 
+        <!-- 軽重の評価 -->
         <label for="body">軽い（1）〜重厚（5）</label>
         <select id="body" required>
           <option value="1">1 軽い</option>
@@ -79,22 +84,21 @@
           <option value="5">5 重厚</option>
         </select>
 
-        <label for="oak_note">樽香</label>
+        <!-- 香りのコメント -->
+        <label for="oak_note">香り</label>
         <textarea id="oak_note" maxlength="1000"
-          placeholder="例：バニラ、トースト香"></textarea>
+          placeholder="例：バニラ、樽香、バナナ、柑橘、シナモン"></textarea>
 
-        <label for="fruit_note">果実感</label>
-        <textarea id="fruit_note" maxlength="1000"
-          placeholder="例：バナナ、柑橘"></textarea>
+        <!-- 既存の投稿処理との互換性を維持 -->
+        <textarea id="fruit_note" hidden></textarea>
+        <textarea id="spice_note" hidden></textarea>
 
-        <label for="spice_note">スパイス感</label>
-        <textarea id="spice_note" maxlength="1000"
-          placeholder="例：クローブ、シナモン"></textarea>
-
+        <!-- 好み・感想 -->
         <label for="preference_note">好み・感想</label>
         <textarea id="preference_note" maxlength="1500"
           placeholder="例：ストレートで楽しみたい"></textarea>
 
+        <!-- 投稿者情報 -->
         <h3>投稿者情報（統計用・任意）</h3>
 
         <label for="gender">性別</label>
@@ -130,6 +134,7 @@
           <label><input type="checkbox" name="favorite_drinks" value="other"> その他</label>
         </div>
 
+        <!-- 投稿者情報の端末保存 -->
         <label>
           <input type="checkbox" id="remember" checked>
           この端末にニックネーム・属性を保存し、次回自動入力する
@@ -144,13 +149,23 @@
           端末の保存情報を削除
         </button>
 
+        <!-- 投稿ボタン -->
         <button type="submit" id="send">投稿する</button>
 
+        <!-- 管理者承認についてのお知らせ -->
+        <p class="hint">
+          ※ 投稿内容はすぐには公開されません。
+          管理者が内容を確認し、承認した後に公開されます。
+        </p>
+
+        <!-- 投稿結果の表示 -->
         <p id="form-status" role="status" aria-live="polite"></p>
+
       </form>
     </section>
   </main>
 
+  <!-- JavaScript -->
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/rum.js"></script>
