@@ -46,6 +46,50 @@
     <!-- おすすめ検索フォーム -->
     <form id="recommend-form">
 
+      <!-- ラム酒タイプ -->
+      <section class="panel">
+
+        <h2>ラム酒タイプ</h2>
+
+        <p class="muted">
+          ホワイトラムをベースとした
+          ボタニカルラムやフレーバードラムも含みます。
+        </p>
+
+        <div class="choice-group">
+
+          <label>
+            <input
+              type="radio"
+              name="rum_type"
+              value="all"
+              checked
+            >
+            指定なし
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="rum_type"
+              value="white"
+            >
+            ホワイトラム
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="rum_type"
+              value="exclude_white"
+            >
+            ホワイトラムを除外
+          </label>
+
+        </div>
+
+      </section>
+
       <!-- 好きな香り -->
       <section class="panel">
 
@@ -77,6 +121,52 @@
           id="disliked-tags"
           class="flavor-grid"
         ></div>
+
+      </section>
+
+      <!-- 原料・製法の分類 -->
+      <section class="panel">
+
+        <h2>原料・製法の分類（任意）</h2>
+
+        <p class="muted">
+          複数選択できます。
+          選択しない場合は、すべての分類が検索対象になります。
+        </p>
+
+        <div
+          id="production-types"
+          class="flavor-grid"
+        >
+
+          <label>
+            <input
+              type="checkbox"
+              name="production_type"
+              value="トラディショナル"
+            >
+            トラディショナル
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              name="production_type"
+              value="アグリコール"
+            >
+            アグリコール
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              name="production_type"
+              value="ハイテストモラセス"
+            >
+            ハイテストモラセス
+          </label>
+
+        </div>
 
       </section>
 
