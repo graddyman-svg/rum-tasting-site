@@ -111,6 +111,23 @@ function avg(reviews, key) {
 }
 
 // --------------------------------------------------
+// 香りコメントの統合
+// 過去の樽香・果実感・スパイス感もまとめて表示する
+// --------------------------------------------------
+
+function combineAromaNotes(review) {
+  return [
+    review.oak_note,
+    review.fruit_note,
+    review.spice_note
+  ]
+    .filter((note) => typeof note === 'string')
+    .map((note) => note.trim())
+    .filter((note) => note.length > 0)
+    .join(' ／ ');
+}
+
+// --------------------------------------------------
 // 公開済み口コミの読み込み
 // --------------------------------------------------
 
@@ -149,12 +166,13 @@ async function loadReviews() {
       `軽い(1)〜重い(5)：${review.body}/5 · ` +
       date;
 
+    // 香りに関するコメントを1項目に統合
+    const aromaNote = combineAromaNotes(review);
+
     article.append(
       el('h3', '', review.nickname),
       el('p', 'muted', scoreText),
-      line('樽香', review.oak_note),
-      line('果実感', review.fruit_note),
-      line('スパイス感', review.spice_note),
+      line('香り', aromaNote),
       line('好み・感想', review.preference_note)
     );
 
@@ -226,7 +244,6 @@ async function loadRum() {
 
       ['特徴', rum.description],
 
-      // 管理者基準という表記を削除
       [
         '甘口(1)〜辛口(5)',
         rum.base_dryness == null
@@ -276,8 +293,8 @@ loadRum();
 
 // --------------------------------------------------
 // 口コミ投稿処理
-// ※ 現在はHTMLでフォームを非表示にし、
-//   Edge Function側でも投稿を停止しています。
+// 投稿内容は未承認状態で保存され、
+// 管理者の承認後に一般公開される
 // --------------------------------------------------
 
 $('review-form').addEventListener(
@@ -312,11 +329,12 @@ $('review-form').addEventListener(
           $('body').value
         ),
 
+        // 香り全般のコメントを既存のoak_noteに保存
         oak_note: $('oak_note').value.trim(),
 
-        fruit_note: $('fruit_note').value.trim(),
-
-        spice_note: $('spice_note').value.trim(),
+        // 既存のデータベースとの互換性を維持
+        fruit_note: '',
+        spice_note: '',
 
         preference_note:
           $('preference_note').value.trim(),
@@ -336,22 +354,26 @@ $('review-form').addEventListener(
       // Supabase Edge Functionへ送信
       await submitReview(payload);
 
-      // 投稿者情報の保存
-      if ($('remember').checked) {
-        saveProfile();
-      } else {
-        localStorage.removeItem(PROFILE_KEY);
+      // 投稿者情報の端末保存
+      // 保存に失敗しても口コミの受付結果には影響させない
+      try {
+        if ($('remember').checked) {
+          saveProfile();
+        } else {
+          localStorage.removeItem(PROFILE_KEY);
+        }
+      } catch (error) {
+        console.warn('投稿者情報を端末に保存できませんでした。');
       }
 
+      // 投稿受付完了のお知らせ
       status.textContent =
         '投稿を受け付けました。' +
         '管理者の承認後に公開されます。';
 
-      // 入力した感想をクリア
+      // 入力したコメントをクリア
       [
         'oak_note',
-        'fruit_note',
-        'spice_note',
         'preference_note'
       ].forEach((key) => {
         $(key).value = '';
