@@ -369,3 +369,49 @@
   }
 
 }
+
+/* ==================================================
+   おすすめ検索：原料・製法の分類
+   ================================================== */
+
+#production-types label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #dce5de;
+  border-radius: 8px;
+  background: #f6f7f5;
+  font-weight: 400;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* チェックボックス */
+#production-types input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #195b47;
+}
+
+/* マウスを重ねたとき */
+#production-types label:hover {
+  border-color: #195b47;
+}
+
+/* 選択された項目 */
+#production-types label:has(input:checked) {
+  background: #e1eee6;
+  border-color: #195b47;
+  color: #173c32;
+  font-weight: 600;
+}
+
+/* キーボード操作時 */
+#production-types label:focus-within {
+  outline: 2px solid #195b47;
+  outline-offset: 2px;
+}
